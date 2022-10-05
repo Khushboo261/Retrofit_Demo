@@ -24,7 +24,8 @@ class MainActivity : AppCompatActivity() {
             .getRetrofitInstance()
             .create(AlbumService::class.java)
         val responseLiveData : LiveData<Response<Album>> = liveData {
-            val response = retService.getAlbums()
+            val response:Response<Album> = retService.getSortedAlbums(userId = 3)
+            //val response = retService.getAlbums()
             emit(response)
         }
         responseLiveData.observe(this, Observer{
