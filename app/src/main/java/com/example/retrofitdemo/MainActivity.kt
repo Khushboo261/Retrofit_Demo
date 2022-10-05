@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
@@ -14,17 +15,24 @@ import retrofit2.create
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var retService: AlbumService
     //private lateinit var text_view : TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         //text_view = findViewById<TextView>(R.id.textView)
-        val retService = RetrofitInstance
+        retService = RetrofitInstance
             .getRetrofitInstance()
             .create(AlbumService::class.java)
+        getRequestWithQueryParameters()
+        //getRequestWithPathParameters()
+
+    }
+
+    private fun getRequestWithQueryParameters(){
         val responseLiveData : LiveData<Response<Album>> = liveData {
-            val response:Response<Album> = retService.getSortedAlbums(userId = 3)
+            val response:Response<Album> = retService.getSortedAlbums(3)
             //val response = retService.getAlbums()
             emit(response)
         }
@@ -40,6 +48,18 @@ class MainActivity : AppCompatActivity() {
                     binding.textView.append(result)
                 }
             }
+        })
+    }
+
+    private fun getRequestWithPathParameters(){
+        //path parameter example
+        val pathResponse : LiveData<Response<AlbumItem>> = liveData {
+            val response = retService.getAlbum(3)
+            emit(response)
+        }
+        pathResponse.observe(this, Observer {
+            val title = it.body()?.title
+            Toast.makeText(applicationContext, title, Toast.LENGTH_LONG).show()
         })
     }
 }
